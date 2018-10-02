@@ -1,5 +1,5 @@
-# NetPackTypescriptCompiler
-A typescript compiler written for NodeJS that trasnpiles in memory, for use with NetPack.
+# NetPack - Rollup
+An npm module written to allow NetPack to invoke Rollup using [Microsoft.AspNetCore.NodeServices](https://github.com/aspnet/JavaScriptServices/tree/master/src/Microsoft.AspNetCore.NodeServices#microsoftaspnetcorenodeservices)
 
 Open with VS Code.
 
