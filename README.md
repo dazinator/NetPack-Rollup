@@ -12,7 +12,7 @@ To debug the tests, launch VS Code debugger with "Run mocha" selected.
 To run tests from command line:
 
 ```
-mocha dist/test
+npm test
 ```
 
 All source code is written in typescript within the `src` directory, and is transpiled to the `dist` folder
