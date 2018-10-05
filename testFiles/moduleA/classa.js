@@ -1,5 +1,5 @@
 export class ClassA {
-    constructor(public another: string) { }
+    constructor(another) { }
     doSomething() {
         // return ""<h1>"" + this.greeting + ""</h1>"";
     }

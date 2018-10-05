@@ -3,32 +3,37 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const rolluphost_1 = require("../rolluphost");
 const RollupFileOptions_1 = require("../RollupFileOptions");
 const RollupOutputOptions_1 = require("../RollupOutputOptions");
+const hypothetical = require("rollup-plugin-hypothetical");
 const fs = require("fs");
-// var describe = mocha.describe;
-//var it = mocha.it;
+const assert_1 = require("assert");
 describe("NetpackRollupHost", () => {
     describe("Bundling", () => {
         it("bundles multiple in memory files to single file", () => {
             // Arrange
-            var classAFileContents = fs.readFileSync('testFiles/moduleA/classa.ts', "utf-8");
-            var classBFileContents = fs.readFileSync('testFiles/moduleB/classb.ts', "utf-8");
-            // var args = '--module Amd -t es5 --outFile test.js --inlineSourceMap --traceResolution ';
-            var webRoot = "testFiles";
-            var filePathA = webRoot + "/ModuleA/ClassA.ts";
-            var filePathB = webRoot + "/ModuleB/ClassB.ts";
+            var classAFileContents = fs.readFileSync('testFiles/ModuleA/classa.js', "utf-8");
+            var classBFileContents = fs.readFileSync('testFiles/ModuleB/classb.js', "utf-8");
+            //var webRoot = "testFiles";
+            var filePathA = "/ModuleA/ClassA";
+            var filePathB = "/ModuleB/ClassB";
             var files = {};
             files[filePathA] = classAFileContents;
             files[filePathB] = classBFileContents;
-            var compileErrors = [];
-            var errorHandler = function (err) {
-                compileErrors.push(err);
-            };
             var inputOptions = new RollupFileOptions_1.default();
+            inputOptions.entry = "/ModuleB/ClassB";
+            var hypotheticalPlugin = hypothetical({
+                files: files
+            });
+            hypotheticalPlugin.cwd = false;
+            inputOptions.plugins = [hypotheticalPlugin];
             var outputOptions = new RollupOutputOptions_1.default();
+            outputOptions.format = "esm";
             let sut = new rolluphost_1.default();
-            sut.build(inputOptions, outputOptions);
-            // expect(result.errors.length).to.equal(0);
-            // expect(result.sources["test.js"]).is.not.undefined;
+            sut.build(inputOptions, outputOptions).then(result => {
+                var code = result.Code;
+                var sourceMap = result.SourceMap;
+            }).catch((reason) => {
+                assert_1.fail("error " + reason);
+            });
         });
     });
 });

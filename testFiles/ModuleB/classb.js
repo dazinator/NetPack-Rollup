@@ -1,8 +1,8 @@
-///<reference path="../moduleA/classa.ts" />
-import {ClassA} from "../moduleA/classa";
+import {ClassA} from "../ModuleA/ClassA";
+
 
 export class ClassB {
-    constructor(public another: string) { }
+    constructor(another) { }
     doSomething() {
         // return ""<h1>"" + this.greeting + ""</h1>"";
     }

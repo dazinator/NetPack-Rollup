@@ -1,8 +1,16 @@
 import rollup = require('rollup');
 
+
+export interface RollupResult
+{
+    Code: string;
+    SourceMap: rollup.SourceMap
+}
+
 export default class RollupHost
 {
-    public async build(inputOptions: rollup.RollupFileOptions, outputOptions: rollup.OutputOptions) {
+    public async build(inputOptions: rollup.RollupFileOptions, outputOptions: rollup.OutputOptions) : Promise<RollupResult>
+     {
 
         // create a bundle
         const bundle = await rollup.rollup(inputOptions);
@@ -12,10 +20,19 @@ export default class RollupHost
         console.log(bundle.modules); // an array of module objects
 
         // generate code and a sourcemap
-        const { code, map } = await bundle.generate(outputOptions);
+        try 
+        {
+            const { code, map } = await bundle.generate(outputOptions);
+           // var result = new RollupResult();
+            return {Code: code, SourceMap:map }
+        }
+        catch(e) {
+            console.log(e); // 30
+          }
+      
 
         // or write the bundle to disk
-        await bundle.write(outputOptions);
+        // await bundle.write(outputOptions);
      }
 }
 
