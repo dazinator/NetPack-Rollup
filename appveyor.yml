@@ -11,4 +11,4 @@ install:
 - ps: npm whoami
 
 deploy_script:
-- ps: npm publish
+- ps: npm publish --loglevel=error
