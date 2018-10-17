@@ -15,20 +15,20 @@ export default class RollupHost
         // create a bundle
         const bundle = await rollup.rollup(inputOptions);
   
-        console.log(bundle.imports); // an array of external dependencies
-        console.log(bundle.exports); // an array of names exported by the entry point
-        console.log(bundle.modules); // an array of module objects
+        // console.log(bundle.imports); // an array of external dependencies
+        // console.log(bundle.exports); // an array of names exported by the entry point
+        // console.log(bundle.modules); // an array of module objects
 
         // generate code and a sourcemap
-        try 
-        {
+        // try 
+        // {
             const { code, map } = await bundle.generate(outputOptions);
            // var result = new RollupResult();
             return {Code: code, SourceMap:map }
-        }
-        catch(e) {
-            console.log(e); // 30
-          }
+        // }
+        // catch(e) {
+          //  console.log(e); // 30
+       //   }
       
 
         // or write the bundle to disk
