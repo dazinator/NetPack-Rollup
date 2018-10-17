@@ -14,18 +14,19 @@ class RollupHost {
         return __awaiter(this, void 0, void 0, function* () {
             // create a bundle
             const bundle = yield rollup.rollup(inputOptions);
-            console.log(bundle.imports); // an array of external dependencies
-            console.log(bundle.exports); // an array of names exported by the entry point
-            console.log(bundle.modules); // an array of module objects
+            // console.log(bundle.imports); // an array of external dependencies
+            // console.log(bundle.exports); // an array of names exported by the entry point
+            // console.log(bundle.modules); // an array of module objects
             // generate code and a sourcemap
-            try {
-                const { code, map } = yield bundle.generate(outputOptions);
-                // var result = new RollupResult();
-                return { Code: code, SourceMap: map };
-            }
-            catch (e) {
-                console.log(e); // 30
-            }
+            // try 
+            // {
+            const { code, map } = yield bundle.generate(outputOptions);
+            // var result = new RollupResult();
+            return { Code: code, SourceMap: map };
+            // }
+            // catch(e) {
+            //  console.log(e); // 30
+            //   }
             // or write the bundle to disk
             // await bundle.write(outputOptions);
         });
