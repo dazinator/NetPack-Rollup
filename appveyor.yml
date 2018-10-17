@@ -11,4 +11,5 @@ install:
 - ps: npm whoami
 
 deploy_script:
+- ps: npm version %APPVEYOR_BUILD_VERSION% -m 'v%APPVEYOR_BUILD_VERSION%'
 - ps: npm publish --loglevel=error
