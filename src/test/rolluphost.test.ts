@@ -1,9 +1,12 @@
 import rollupHost from "../rolluphost";
 import RollupInputOptions from "../RollupFileOptions";
+import {RollupDirOptions} from "../RollupFileOptions";
 import RollupOutputOptions from "../RollupOutputOptions";
+import {RollupOutputOptionsDir} from "../RollupOutputOptions";
 import hypothetical = require("rollup-plugin-hypothetical")
 import * as fs from "fs";
 import { fail } from "assert";
+import { rollup, OutputChunk } from "rollup";
 
 
 describe("NetpackRollupHost", () => {
@@ -47,6 +50,56 @@ describe("NetpackRollupHost", () => {
                 fail("error " + reason)
             });                         
         });      
+
+        // see https://github.com/rollup/rollup-starter-code-splitting
+        it("bundles multiple entry points to code split chunks", () => {
+
+            // Arrange
+             var files = { 
+             };
+             files["/src/main-a"] = fs.readFileSync('testFiles/CodeSplitting/main-a.js', "utf-8");
+             files["/src/main-b"] = fs.readFileSync('testFiles/CodeSplitting/main-b.js', "utf-8");   
+             files["/src/used-by-a"] = fs.readFileSync('testFiles/CodeSplitting/used-by-a.js', "utf-8"); 
+             files["/src/used-by-b"] = fs.readFileSync('testFiles/CodeSplitting/used-by-b.js', "utf-8"); 
+             files["/src/used-by-both"] = fs.readFileSync('testFiles/CodeSplitting/used-by-both.js', "utf-8"); 
+             files["/src/dynamically-imported/apply-color-and-message"] = fs.readFileSync('testFiles/CodeSplitting/dynamically-imported/apply-color-and-message.js', "utf-8"); 
+             files["/src/dynamically-imported/dom"] = fs.readFileSync('testFiles/CodeSplitting/dynamically-imported/dom.js', "utf-8"); 
+ 
+             var inputOptions = new RollupDirOptions();
+             inputOptions.input = ["/src/main-a","/src/main-b"];
+ 
+             var hypotheticalPlugin = hypothetical({
+                 files: files
+             });
+ 
+             hypotheticalPlugin.cwd = false;
+             inputOptions.plugins = [hypotheticalPlugin];                
+                   
+             var outputOptions = new RollupOutputOptionsDir();
+             outputOptions.format = "esm";
+             let sut = new rollupHost();
+             sut.BuildChunks(inputOptions, outputOptions).then(result=>{
+
+                for (let key in result) {
+                    
+                    var file:any = result[key];
+                    var code = file.code;
+                    var map = file.sourceMap;
+                    
+                  //  var                    // value.code;
+
+                   // value.file
+                    // Use `key` and `value`
+                   // var code =  value.Code;
+                   // var sourceMap = value.SourceMap; 
+                }
+              
+             //            
+ 
+             }).catch((reason)=>{
+                 fail("error " + reason)
+             });                         
+         });     
         
     });
 });

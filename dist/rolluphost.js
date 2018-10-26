@@ -10,6 +10,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const rollup = require("rollup");
 class RollupHost {
+    //export function rollup(options: RollupDirOptions): Promise<RollupBuild>;
+    BuildChunks(inputOptions, outputOptions) {
+        return __awaiter(this, void 0, void 0, function* () {
+            inputOptions.experimentalCodeSplitting = true;
+            const build = yield rollup.rollup(inputOptions);
+            // console.log(bundle.imports); // an array of external dependencies
+            // console.log(bundle.exports); // an array of names exported by the entry point
+            // console.log(bundle.modules); // an array of module objects
+            // generate code and a sourcemap
+            // try 
+            // {
+            const outputBundle = yield build.generate(outputOptions);
+            var output = outputBundle.output;
+            return output;
+            // }
+            // catch(e) {
+            //  console.log(e); // 30
+            //   }
+            // or write the bundle to disk
+            // await bundle.write(outputOptions);
+        });
+    }
     build(inputOptions, outputOptions) {
         return __awaiter(this, void 0, void 0, function* () {
             // create a bundle
