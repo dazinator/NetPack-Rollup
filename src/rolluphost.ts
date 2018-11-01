@@ -2,7 +2,7 @@ import rollup = require('rollup');
 
 export interface RollupResult {
     Code: string;
-    SourceMap: rollup.SourceMap
+    SourceMap: SourceMap
     FileName: string
     Exports: string[]
     Imports: string[]
@@ -17,26 +17,33 @@ export interface RollupModuleResult {
     Exports: string[]
 }
 
+export interface SourceMap {
+    version: string;
+    file: string;
+    sources: string[];
+    sourcesContent: string[];
+    names: string[];
+    mappings: string;
+
+    toString(): string;
+    toUrl(): string;
+}
+
 export default class RollupHost {
 
     public async BuildChunks(inputOptions: rollup.RollupDirOptions, outputOptions: rollup.OutputOptionsDir): Promise<RollupResult[]> {
         inputOptions.experimentalCodeSplitting = true;
         const build = await rollup.rollup(inputOptions);
-        const outputBundle = await build.generate(outputOptions);   
-        const output = outputBundle.output;       
-      
-       var results = [];
+        const outputBundle = await build.generate(outputOptions);
+        const output = outputBundle.output;
+
+        var results = [];
 
         for (let key in output) {
-            var chunk: rollup.OutputFile | rollup.OutputChunk = output[key];   
-           
-            if ((<rollup.OutputFile>chunk).toString) {
-                var file = (<rollup.OutputFile>chunk); 
-                var fileResult = { Code: file.toString() }
-                results.push(fileResult);                           
-            }
-            else if ((<rollup.OutputChunk>chunk).toString) {
-                var outputChunk = (<rollup.OutputChunk>chunk); 
+            var chunk: rollup.OutputFile | rollup.OutputChunk = output[key];
+
+            if ((<rollup.OutputChunk>chunk).code) {
+                var outputChunk = (<rollup.OutputChunk>chunk);
                 var modulesResult = [];
 
                 for (let key in outputChunk.modules) {
@@ -47,10 +54,15 @@ export default class RollupHost {
 
                 var rollupResult = { Code: outputChunk.code, SourceMap: outputChunk.map, FileName: outputChunk.fileName, Exports: outputChunk.exports, Imports: outputChunk.imports, IsEntry: outputChunk.isEntry, Modules: modulesResult }
                 results.push(rollupResult);
-            }             
+            }
+            else if ((<rollup.OutputFile>chunk).toString) {
+                var file = (<rollup.OutputFile>chunk);
+                var fileResult = { Code: file.toString() }
+                results.push(fileResult);
+            }
         }
 
-        return results;    
+        return results;
     }
 
     public async build(inputOptions: rollup.RollupFileOptions, outputOptions: rollup.OutputOptions): Promise<RollupResult> {

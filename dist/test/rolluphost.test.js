@@ -57,10 +57,12 @@ describe("NetpackRollupHost", () => {
             inputOptions.plugins = [hypotheticalPlugin];
             var outputOptions = new RollupOutputOptions_2.RollupOutputOptionsDir();
             outputOptions.format = "esm";
+            outputOptions.sourcemap = true;
             let sut = new rolluphost_1.default();
             sut.BuildChunks(inputOptions, outputOptions).then(result => {
                 for (let item in result) {
-                    console.log(item);
+                    var codeItem = result[item];
+                    console.log(codeItem);
                 }
             }).catch((reason) => {
                 assert_1.fail("error " + reason);

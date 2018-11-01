@@ -9,4 +9,5 @@ export default class RollupOutputOptions implements OutputOptions
 export class RollupOutputOptionsDir implements OutputOptionsDir
 {    
     format?: ModuleFormat;
+    sourcemap?: boolean | 'inline';
 }

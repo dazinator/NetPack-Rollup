@@ -19,12 +19,7 @@ class RollupHost {
             var results = [];
             for (let key in output) {
                 var chunk = output[key];
-                if (chunk.toString) {
-                    var file = chunk;
-                    var fileResult = { Code: file.toString() };
-                    results.push(fileResult);
-                }
-                else if (chunk.toString) {
+                if (chunk.code) {
                     var outputChunk = chunk;
                     var modulesResult = [];
                     for (let key in outputChunk.modules) {
@@ -34,6 +29,11 @@ class RollupHost {
                     }
                     var rollupResult = { Code: outputChunk.code, SourceMap: outputChunk.map, FileName: outputChunk.fileName, Exports: outputChunk.exports, Imports: outputChunk.imports, IsEntry: outputChunk.isEntry, Modules: modulesResult };
                     results.push(rollupResult);
+                }
+                else if (chunk.toString) {
+                    var file = chunk;
+                    var fileResult = { Code: file.toString() };
+                    results.push(fileResult);
                 }
             }
             return results;
