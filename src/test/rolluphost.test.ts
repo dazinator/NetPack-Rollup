@@ -37,10 +37,12 @@ describe("NetpackRollupHost", () => {
             });
 
             hypotheticalPlugin.cwd = false;
-            inputOptions.plugins = [hypotheticalPlugin];                
+            inputOptions.plugins = [hypotheticalPlugin];                   
                   
             var outputOptions = new RollupOutputOptions();
             outputOptions.format = "esm";
+            //outputOptions.globals = {};
+            
             let sut = new rollupHost();
             sut.build(inputOptions, outputOptions).then(result=>{                
 
