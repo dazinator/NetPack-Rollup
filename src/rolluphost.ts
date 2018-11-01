@@ -1,63 +1,71 @@
 import rollup = require('rollup');
 
-
 export interface RollupResult {
     Code: string;
     SourceMap: rollup.SourceMap
+    FileName: string
+    Exports: string[]
+    Imports: string[]
+    IsEntry: boolean
+    Modules: RollupModuleResult[]
+}
+
+export interface RollupModuleResult {
+    OriginalLength: number;
+    RemovedExports: string[]
+    Length: number;
+    Exports: string[]
 }
 
 export default class RollupHost {
 
-    //export function rollup(options: RollupDirOptions): Promise<RollupBuild>;
-
-    public async BuildChunks(inputOptions: rollup.RollupDirOptions, outputOptions: rollup.OutputOptionsDir): Promise<rollup.OutputBundle> {
-
+    public async BuildChunks(inputOptions: rollup.RollupDirOptions, outputOptions: rollup.OutputOptionsDir): Promise<RollupResult[]> {
         inputOptions.experimentalCodeSplitting = true;
         const build = await rollup.rollup(inputOptions);
+        const outputBundle = await build.generate(outputOptions);   
+        const output = outputBundle.output;       
+      
+       var results = [];
 
-        // console.log(bundle.imports); // an array of external dependencies
-        // console.log(bundle.exports); // an array of names exported by the entry point
-        // console.log(bundle.modules); // an array of module objects
+        for (let key in output) {
+            var chunk: rollup.OutputFile | rollup.OutputChunk = output[key];   
+           
+            if ((<rollup.OutputFile>chunk).toString) {
+                var file = (<rollup.OutputFile>chunk); 
+                var fileResult = { Code: file.toString() }
+                results.push(fileResult);                           
+            }
+            else if ((<rollup.OutputChunk>chunk).toString) {
+                var outputChunk = (<rollup.OutputChunk>chunk); 
+                var modulesResult = [];
 
-        // generate code and a sourcemap
-        // try 
-        // {
-        const outputBundle = await build.generate(outputOptions);
-        var output = outputBundle.output;
-        return output
-        // }
-        // catch(e) {
-        //  console.log(e); // 30
-        //   }
+                for (let key in outputChunk.modules) {
+                    var module: rollup.RenderedModule = outputChunk.modules[key];
+                    var moduleResult = { OriginalLength: module.originalLength, Length: module.renderedLength, RemovedExports: module.removedExports, Exports: module.renderedExports }
+                    modulesResult.push(moduleResult);
+                }
 
+                var rollupResult = { Code: outputChunk.code, SourceMap: outputChunk.map, FileName: outputChunk.fileName, Exports: outputChunk.exports, Imports: outputChunk.imports, IsEntry: outputChunk.isEntry, Modules: modulesResult }
+                results.push(rollupResult);
+            }             
+        }
 
-        // or write the bundle to disk
-        // await bundle.write(outputOptions);
+        return results;    
     }
 
     public async build(inputOptions: rollup.RollupFileOptions, outputOptions: rollup.OutputOptions): Promise<RollupResult> {
-
-        // create a bundle
         const bundle = await rollup.rollup(inputOptions);
 
-        // console.log(bundle.imports); // an array of external dependencies
-        // console.log(bundle.exports); // an array of names exported by the entry point
-        // console.log(bundle.modules); // an array of module objects
+        var result = await bundle.generate(outputOptions);
+        var modulesResult = [];
+        for (let key in result.modules) {
+            var module: rollup.RenderedModule = result.modules[key];
+            var moduleResult = { OriginalLength: module.originalLength, Length: module.renderedLength, RemovedExports: module.removedExports, Exports: module.renderedExports }
+            modulesResult.push(moduleResult);
+        }
 
-        // generate code and a sourcemap
-        // try 
-        // {
-        const { code, map } = await bundle.generate(outputOptions);
-        // var result = new RollupResult();
-        return { Code: code, SourceMap: map }
-        // }
-        // catch(e) {
-        //  console.log(e); // 30
-        //   }
-
-
-        // or write the bundle to disk
-        // await bundle.write(outputOptions);
+        var rollupResult = { Code: result.code, SourceMap: result.map, FileName: result.fileName, Exports: result.exports, Imports: result.imports, IsEntry: result.isEntry, Modules: modulesResult }
+        return rollupResult;
     }
 }
 

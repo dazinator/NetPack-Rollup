@@ -42,7 +42,8 @@ describe("NetpackRollupHost", () => {
             var outputOptions = new RollupOutputOptions();
             outputOptions.format = "esm";
             let sut = new rollupHost();
-            sut.build(inputOptions, outputOptions).then(result=>{
+            sut.build(inputOptions, outputOptions).then(result=>{                
+
               var code =  result.Code;
               var sourceMap = result.SourceMap;           
 
@@ -80,21 +81,11 @@ describe("NetpackRollupHost", () => {
              let sut = new rollupHost();
              sut.BuildChunks(inputOptions, outputOptions).then(result=>{
 
-                for (let key in result) {
-                    
-                    var file:any = result[key];
-                    var code = file.code;
-                    var map = file.sourceMap;
-                    
-                  //  var                    // value.code;
-
-                   // value.file
-                    // Use `key` and `value`
-                   // var code =  value.Code;
-                   // var sourceMap = value.SourceMap; 
-                }
+                for (let item in result) {
+                    console.log(item);
+                 }            
               
-             //            
+                 
  
              }).catch((reason)=>{
                  fail("error " + reason)
