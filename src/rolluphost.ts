@@ -1,5 +1,19 @@
 import rollup = require('rollup');
 
+export interface RollupCodeSplitResult
+{
+    Outputs: RollupResult[]
+    Cache: any,
+    Timings: any
+}
+
+export interface RollupSingleFileBundleResult
+{
+    Output: RollupResult
+    Cache: any,
+    Timings: any
+}
+
 export interface RollupResult {
     Code: string;
     SourceMap: SourceMap
@@ -7,7 +21,7 @@ export interface RollupResult {
     Exports: string[]
     Imports: string[]
     IsEntry: boolean
-    Modules: RollupModuleResult[]
+    Modules: RollupModuleResult[]  
 }
 
 export interface RollupModuleResult {
@@ -31,13 +45,16 @@ export interface SourceMap {
 
 export default class RollupHost {
 
-    public async BuildChunks(inputOptions: rollup.RollupDirOptions, outputOptions: rollup.OutputOptionsDir): Promise<RollupResult[]> {
+    public async BuildChunks(inputOptions: rollup.RollupDirOptions, outputOptions: rollup.OutputOptionsDir): Promise<RollupCodeSplitResult> {
         inputOptions.experimentalCodeSplitting = true;
         const build = await rollup.rollup(inputOptions);
+
+        var timings = null;      
+
         const outputBundle = await build.generate(outputOptions);
         const output = outputBundle.output;
 
-        var results = [];
+        var outputs = [];
 
         for (let key in output) {
             var chunk: rollup.OutputFile | rollup.OutputChunk = output[key];
@@ -53,22 +70,30 @@ export default class RollupHost {
                 }
 
                 var rollupResult = { Code: outputChunk.code, SourceMap: outputChunk.map, FileName: outputChunk.fileName, Exports: outputChunk.exports, Imports: outputChunk.imports, IsEntry: outputChunk.isEntry, Modules: modulesResult }
-                results.push(rollupResult);
+                outputs.push(rollupResult);
             }
             else if ((<rollup.OutputFile>chunk).toString) {
                 var file = (<rollup.OutputFile>chunk);
                 var fileResult = { Code: file.toString() }
-                results.push(fileResult);
+                outputs.push(fileResult);
             }
         }
 
-        return results;
+        var result = { Cache:build.cache, Outputs: outputs, Timings: null }       
+        if(build.getTimings!= null)
+        {
+            timings = build.getTimings();  
+            result.Timings = timings;            
+        }
+
+        return result;
     }
 
-    public async build(inputOptions: rollup.RollupFileOptions, outputOptions: rollup.OutputOptions): Promise<RollupResult> {
-        const bundle = await rollup.rollup(inputOptions);
-
+    public async build(inputOptions: rollup.RollupFileOptions, outputOptions: rollup.OutputOptions): Promise<RollupSingleFileBundleResult> {
+        const bundle = await rollup.rollup(inputOptions);       
+       
         var result = await bundle.generate(outputOptions);
+        
         var modulesResult = [];
         for (let key in result.modules) {
             var module: rollup.RenderedModule = result.modules[key];
@@ -76,8 +101,14 @@ export default class RollupHost {
             modulesResult.push(moduleResult);
         }
 
-        var rollupResult = { Code: result.code, SourceMap: result.map, FileName: result.fileName, Exports: result.exports, Imports: result.imports, IsEntry: result.isEntry, Modules: modulesResult }
-        return rollupResult;
+        var timings = null;
+        if(bundle.getTimings!= null)
+        {
+            timings = bundle.getTimings();       
+        }
+
+        var output = { Code: result.code, SourceMap: result.map, FileName: result.fileName, Exports: result.exports, Imports: result.imports, IsEntry: result.isEntry, Modules: modulesResult, Cache: bundle.cache, Timings: timings }
+        return { Cache:bundle.cache, Output: output, Timings: timings }
     }
 }
 

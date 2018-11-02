@@ -14,9 +14,10 @@ class RollupHost {
         return __awaiter(this, void 0, void 0, function* () {
             inputOptions.experimentalCodeSplitting = true;
             const build = yield rollup.rollup(inputOptions);
+            var timings = null;
             const outputBundle = yield build.generate(outputOptions);
             const output = outputBundle.output;
-            var results = [];
+            var outputs = [];
             for (let key in output) {
                 var chunk = output[key];
                 if (chunk.code) {
@@ -28,15 +29,20 @@ class RollupHost {
                         modulesResult.push(moduleResult);
                     }
                     var rollupResult = { Code: outputChunk.code, SourceMap: outputChunk.map, FileName: outputChunk.fileName, Exports: outputChunk.exports, Imports: outputChunk.imports, IsEntry: outputChunk.isEntry, Modules: modulesResult };
-                    results.push(rollupResult);
+                    outputs.push(rollupResult);
                 }
                 else if (chunk.toString) {
                     var file = chunk;
                     var fileResult = { Code: file.toString() };
-                    results.push(fileResult);
+                    outputs.push(fileResult);
                 }
             }
-            return results;
+            var result = { Cache: build.cache, Outputs: outputs, Timings: null };
+            if (build.getTimings != null) {
+                timings = build.getTimings();
+                result.Timings = timings;
+            }
+            return result;
         });
     }
     build(inputOptions, outputOptions) {
@@ -49,8 +55,12 @@ class RollupHost {
                 var moduleResult = { OriginalLength: module.originalLength, Length: module.renderedLength, RemovedExports: module.removedExports, Exports: module.renderedExports };
                 modulesResult.push(moduleResult);
             }
-            var rollupResult = { Code: result.code, SourceMap: result.map, FileName: result.fileName, Exports: result.exports, Imports: result.imports, IsEntry: result.isEntry, Modules: modulesResult };
-            return rollupResult;
+            var timings = null;
+            if (bundle.getTimings != null) {
+                timings = bundle.getTimings();
+            }
+            var output = { Code: result.code, SourceMap: result.map, FileName: result.fileName, Exports: result.exports, Imports: result.imports, IsEntry: result.isEntry, Modules: modulesResult, Cache: bundle.cache, Timings: timings };
+            return { Cache: bundle.cache, Output: output, Timings: timings };
         });
     }
 }

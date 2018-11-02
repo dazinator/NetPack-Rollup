@@ -7,13 +7,17 @@
   "dependencies": {
     "@types/mocha": "^5.2.5",
     "@types/npm": "^2.0.29",
+    "@types/pretty-bytes": "^5.1.0",
     "rollup": "^0.66.2",
     "rollup-plugin-hypothetical": "^2.1.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
-    "typescript": "^3.1.1"
+    "typescript": "^3.1.1",
+    "turbocolor": "2.4.1",
+    "pretty-bytes": "5.1.0",
+    "pretty-ms": "^4.0.0"
   },
   "scripts": {
     "test": "./node_modules/.bin/mocha dist/test",
