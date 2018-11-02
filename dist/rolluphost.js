@@ -28,7 +28,11 @@ class RollupHost {
                         var moduleResult = { OriginalLength: module.originalLength, Length: module.renderedLength, RemovedExports: module.removedExports, Exports: module.renderedExports };
                         modulesResult.push(moduleResult);
                     }
-                    var rollupResult = { Code: outputChunk.code, SourceMap: outputChunk.map, FileName: outputChunk.fileName, Exports: outputChunk.exports, Imports: outputChunk.imports, IsEntry: outputChunk.isEntry, Modules: modulesResult };
+                    var code = outputChunk.code;
+                    if (outputOptions.sourcemap === 'inline' && outputChunk.map != null) {
+                        code += `\n//# sourceMappingUrl=${outputChunk.map.toUrl()}\n`;
+                    }
+                    var rollupResult = { Code: code, SourceMap: outputChunk.map, FileName: outputChunk.fileName, Exports: outputChunk.exports, Imports: outputChunk.imports, IsEntry: outputChunk.isEntry, Modules: modulesResult };
                     outputs.push(rollupResult);
                 }
                 else if (chunk.toString) {
@@ -59,7 +63,11 @@ class RollupHost {
             if (bundle.getTimings != null) {
                 timings = bundle.getTimings();
             }
-            var output = { Code: result.code, SourceMap: result.map, FileName: result.fileName, Exports: result.exports, Imports: result.imports, IsEntry: result.isEntry, Modules: modulesResult, Cache: bundle.cache, Timings: timings };
+            var code = result.code;
+            if (outputOptions.sourcemap === 'inline' && result.map != null) {
+                code += `\n//# sourceMappingUrl=${result.map.toUrl()}\n`;
+            }
+            var output = { Code: code, SourceMap: result.map, FileName: result.fileName, Exports: result.exports, Imports: result.imports, IsEntry: result.isEntry, Modules: modulesResult, Cache: bundle.cache, Timings: timings };
             return { Cache: bundle.cache, Output: output, Timings: timings };
         });
     }

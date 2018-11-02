@@ -41,6 +41,7 @@ describe("NetpackRollupHost", () => {
 
             var outputOptions = new RollupOutputOptions();
             outputOptions.format = "esm";
+            outputOptions.sourcemap = true;
             // outputOptions.paths = {};
             //  outputOptions.globals = {};
 
@@ -81,7 +82,7 @@ describe("NetpackRollupHost", () => {
 
             var outputOptions = new RollupOutputOptionsDir();
             outputOptions.format = "esm";
-            outputOptions.sourcemap = true;
+            outputOptions.sourcemap = "inline";
             let sut = new rollupHost();
             sut.BuildChunks(inputOptions, outputOptions).then(result => {
 

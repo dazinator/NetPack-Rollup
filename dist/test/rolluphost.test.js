@@ -30,6 +30,7 @@ describe("NetpackRollupHost", () => {
             inputOptions.plugins = [hypotheticalPlugin];
             var outputOptions = new RollupOutputOptions_1.default();
             outputOptions.format = "esm";
+            outputOptions.sourcemap = true;
             // outputOptions.paths = {};
             //  outputOptions.globals = {};
             let sut = new rolluphost_1.default();
@@ -61,7 +62,7 @@ describe("NetpackRollupHost", () => {
             inputOptions.plugins = [hypotheticalPlugin];
             var outputOptions = new RollupOutputOptions_2.RollupOutputOptionsDir();
             outputOptions.format = "esm";
-            outputOptions.sourcemap = true;
+            outputOptions.sourcemap = "inline";
             let sut = new rolluphost_1.default();
             sut.BuildChunks(inputOptions, outputOptions).then(result => {
                 timings_1.printTimings(result.Timings);

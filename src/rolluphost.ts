@@ -1,14 +1,12 @@
 import rollup = require('rollup');
 
-export interface RollupCodeSplitResult
-{
+export interface RollupCodeSplitResult {
     Outputs: RollupResult[]
     Cache: any,
     Timings: any
 }
 
-export interface RollupSingleFileBundleResult
-{
+export interface RollupSingleFileBundleResult {
     Output: RollupResult
     Cache: any,
     Timings: any
@@ -21,7 +19,7 @@ export interface RollupResult {
     Exports: string[]
     Imports: string[]
     IsEntry: boolean
-    Modules: RollupModuleResult[]  
+    Modules: RollupModuleResult[]
 }
 
 export interface RollupModuleResult {
@@ -49,7 +47,7 @@ export default class RollupHost {
         inputOptions.experimentalCodeSplitting = true;
         const build = await rollup.rollup(inputOptions);
 
-        var timings = null;      
+        var timings = null;
 
         const outputBundle = await build.generate(outputOptions);
         const output = outputBundle.output;
@@ -69,7 +67,12 @@ export default class RollupHost {
                     modulesResult.push(moduleResult);
                 }
 
-                var rollupResult = { Code: outputChunk.code, SourceMap: outputChunk.map, FileName: outputChunk.fileName, Exports: outputChunk.exports, Imports: outputChunk.imports, IsEntry: outputChunk.isEntry, Modules: modulesResult }
+                var code = outputChunk.code;
+                if (outputOptions.sourcemap === 'inline' && outputChunk.map != null) {
+                    code += `\n//# sourceMappingUrl=${outputChunk.map.toUrl()}\n`;
+                }
+
+                var rollupResult = { Code: code, SourceMap: outputChunk.map, FileName: outputChunk.fileName, Exports: outputChunk.exports, Imports: outputChunk.imports, IsEntry: outputChunk.isEntry, Modules: modulesResult }
                 outputs.push(rollupResult);
             }
             else if ((<rollup.OutputFile>chunk).toString) {
@@ -79,21 +82,20 @@ export default class RollupHost {
             }
         }
 
-        var result = { Cache:build.cache, Outputs: outputs, Timings: null }       
-        if(build.getTimings!= null)
-        {
-            timings = build.getTimings();  
-            result.Timings = timings;            
+        var result = { Cache: build.cache, Outputs: outputs, Timings: null }
+        if (build.getTimings != null) {
+            timings = build.getTimings();
+            result.Timings = timings;
         }
 
         return result;
     }
 
     public async build(inputOptions: rollup.RollupFileOptions, outputOptions: rollup.OutputOptions): Promise<RollupSingleFileBundleResult> {
-        const bundle = await rollup.rollup(inputOptions);       
-       
+        const bundle = await rollup.rollup(inputOptions);
+
         var result = await bundle.generate(outputOptions);
-        
+
         var modulesResult = [];
         for (let key in result.modules) {
             var module: rollup.RenderedModule = result.modules[key];
@@ -102,13 +104,18 @@ export default class RollupHost {
         }
 
         var timings = null;
-        if(bundle.getTimings!= null)
-        {
-            timings = bundle.getTimings();       
+        if (bundle.getTimings != null) {
+            timings = bundle.getTimings();
         }
 
-        var output = { Code: result.code, SourceMap: result.map, FileName: result.fileName, Exports: result.exports, Imports: result.imports, IsEntry: result.isEntry, Modules: modulesResult, Cache: bundle.cache, Timings: timings }
-        return { Cache:bundle.cache, Output: output, Timings: timings }
+        var code = result.code;     
+       
+        if (outputOptions.sourcemap === 'inline' && result.map != null) {
+            code += `\n//# sourceMappingUrl=${result.map.toUrl()}\n`;
+        }
+
+        var output = { Code: code, SourceMap: result.map, FileName: result.fileName, Exports: result.exports, Imports: result.imports, IsEntry: result.isEntry, Modules: modulesResult, Cache: bundle.cache, Timings: timings }
+        return { Cache: bundle.cache, Output: output, Timings: timings }
     }
 }
 
