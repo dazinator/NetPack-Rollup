@@ -10,6 +10,7 @@ export interface RollupSingleFileBundleResult {
     Output: RollupResult
     Cache: any,
     Timings: any
+    Key: string
 }
 
 export interface RollupResult {
@@ -43,9 +44,9 @@ export interface SourceMap {
 
 export default class RollupHost {
 
-    public async BuildChunks(inputOptions: rollup.RollupDirOptions, outputOptions: rollup.OutputOptionsDir): Promise<RollupCodeSplitResult> {
+    public async BuildChunks(inputOptions: rollup.RollupDirOptions, outputOptions: rollup.OutputOptionsDir, buildKey:string=null): Promise<RollupCodeSplitResult> {
         inputOptions.experimentalCodeSplitting = true;
-        const build = await rollup.rollup(inputOptions);
+        const build = await rollup.rollup(inputOptions);       
 
         var timings = null;
 
@@ -82,7 +83,7 @@ export default class RollupHost {
             }
         }
 
-        var result = { Cache: build.cache, Outputs: outputs, Timings: null }
+        var result = { Cache: build.cache, Outputs: outputs, Timings: null, Key: buildKey }
         if (build.getTimings != null) {
             timings = build.getTimings();
             result.Timings = timings;
@@ -91,9 +92,9 @@ export default class RollupHost {
         return result;
     }
 
-    public async build(inputOptions: rollup.RollupFileOptions, outputOptions: rollup.OutputOptions): Promise<RollupSingleFileBundleResult> {
+    public async build(inputOptions: rollup.RollupFileOptions, outputOptions: rollup.OutputOptions, buildKey:string=null): Promise<RollupSingleFileBundleResult> {
         const bundle = await rollup.rollup(inputOptions);
-
+        
         var result = await bundle.generate(outputOptions);
 
         var modulesResult = [];
@@ -115,7 +116,7 @@ export default class RollupHost {
         }
 
         var output = { Code: code, SourceMap: result.map, FileName: result.fileName, Exports: result.exports, Imports: result.imports, IsEntry: result.isEntry, Modules: modulesResult, Cache: bundle.cache, Timings: timings }
-        return { Cache: bundle.cache, Output: output, Timings: timings }
+        return { Cache: bundle.cache, Output: output, Timings: timings, Key: buildKey }
     }
 }
 

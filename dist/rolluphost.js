@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const rollup = require("rollup");
 class RollupHost {
-    BuildChunks(inputOptions, outputOptions) {
+    BuildChunks(inputOptions, outputOptions, buildKey = null) {
         return __awaiter(this, void 0, void 0, function* () {
             inputOptions.experimentalCodeSplitting = true;
             const build = yield rollup.rollup(inputOptions);
@@ -41,7 +41,7 @@ class RollupHost {
                     outputs.push(fileResult);
                 }
             }
-            var result = { Cache: build.cache, Outputs: outputs, Timings: null };
+            var result = { Cache: build.cache, Outputs: outputs, Timings: null, Key: buildKey };
             if (build.getTimings != null) {
                 timings = build.getTimings();
                 result.Timings = timings;
@@ -49,7 +49,7 @@ class RollupHost {
             return result;
         });
     }
-    build(inputOptions, outputOptions) {
+    build(inputOptions, outputOptions, buildKey = null) {
         return __awaiter(this, void 0, void 0, function* () {
             const bundle = yield rollup.rollup(inputOptions);
             var result = yield bundle.generate(outputOptions);
@@ -68,7 +68,7 @@ class RollupHost {
                 code += `\n//# sourceMappingUrl=${result.map.toUrl()}\n`;
             }
             var output = { Code: code, SourceMap: result.map, FileName: result.fileName, Exports: result.exports, Imports: result.imports, IsEntry: result.isEntry, Modules: modulesResult, Cache: bundle.cache, Timings: timings };
-            return { Cache: bundle.cache, Output: output, Timings: timings };
+            return { Cache: bundle.cache, Output: output, Timings: timings, Key: buildKey };
         });
     }
 }
