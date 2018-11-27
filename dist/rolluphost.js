@@ -25,19 +25,19 @@ class RollupHost {
                     var modulesResult = [];
                     for (let key in outputChunk.modules) {
                         var module = outputChunk.modules[key];
-                        var moduleResult = { OriginalLength: module.originalLength, Length: module.renderedLength, RemovedExports: module.removedExports, Exports: module.renderedExports };
+                        var moduleResult = { OriginalLength: module.originalLength, Length: module.renderedLength, RemovedExports: module.removedExports, Exports: module.renderedExports, Id: key };
                         modulesResult.push(moduleResult);
                     }
                     var code = outputChunk.code;
                     if (outputOptions.sourcemap === 'inline' && outputChunk.map != null) {
                         code += `\n//# sourceMappingUrl=${outputChunk.map.toUrl()}\n`;
                     }
-                    var rollupResult = { Code: code, SourceMap: outputChunk.map, FileName: outputChunk.fileName, Exports: outputChunk.exports, Imports: outputChunk.imports, IsEntry: outputChunk.isEntry, Modules: modulesResult };
+                    var rollupResult = { Id: key, Code: code, SourceMap: outputChunk.map, FileName: outputChunk.fileName, Exports: outputChunk.exports, Imports: outputChunk.imports, IsEntry: outputChunk.isEntry, Modules: modulesResult };
                     outputs.push(rollupResult);
                 }
                 else if (chunk.toString) {
                     var file = chunk;
-                    var fileResult = { Code: file.toString() };
+                    var fileResult = { Id: key, Code: file.toString() };
                     outputs.push(fileResult);
                 }
             }
@@ -56,7 +56,7 @@ class RollupHost {
             var modulesResult = [];
             for (let key in result.modules) {
                 var module = result.modules[key];
-                var moduleResult = { OriginalLength: module.originalLength, Length: module.renderedLength, RemovedExports: module.removedExports, Exports: module.renderedExports };
+                var moduleResult = { OriginalLength: module.originalLength, Length: module.renderedLength, RemovedExports: module.removedExports, Exports: module.renderedExports, Id: key };
                 modulesResult.push(moduleResult);
             }
             var timings = null;
@@ -67,7 +67,7 @@ class RollupHost {
             if (outputOptions.sourcemap === 'inline' && result.map != null) {
                 code += `\n//# sourceMappingUrl=${result.map.toUrl()}\n`;
             }
-            var output = { Code: code, SourceMap: result.map, FileName: result.fileName, Exports: result.exports, Imports: result.imports, IsEntry: result.isEntry, Modules: modulesResult, Cache: bundle.cache, Timings: timings };
+            var output = { Id: "", Code: code, SourceMap: result.map, FileName: result.fileName, Exports: result.exports, Imports: result.imports, IsEntry: result.isEntry, Modules: modulesResult, Cache: bundle.cache, Timings: timings };
             return { Cache: bundle.cache, Output: output, Timings: timings };
         });
     }

@@ -2,43 +2,44 @@ import rollup = require('rollup');
 
 export interface RollupCodeSplitResult {
     Outputs: RollupResult[]
-    Cache: any,
+    Cache: any
     Timings: any
 }
 
 export interface RollupSingleFileBundleResult {
     Output: RollupResult
-    Cache: any,
+    Cache: any
     Timings: any
 }
 
 export interface RollupResult {
-    Code: string;
+    Code: string
     SourceMap: SourceMap
     FileName: string
     Exports: string[]
     Imports: string[]
     IsEntry: boolean
-    Modules: RollupModuleResult[]
+    Id: string
 }
 
 export interface RollupModuleResult {
-    OriginalLength: number;
+    Id: string;
+    OriginalLength: number
     RemovedExports: string[]
-    Length: number;
+    Length: number
     Exports: string[]
 }
 
 export interface SourceMap {
-    version: string;
-    file: string;
-    sources: string[];
-    sourcesContent: string[];
-    names: string[];
-    mappings: string;
+    version: string
+    file: string
+    sources: string[]
+    sourcesContent: string[]
+    names: string[]
+    mappings: string
 
-    toString(): string;
-    toUrl(): string;
+    toString(): string
+    toUrl(): string
 }
 
 export default class RollupHost {
@@ -51,19 +52,20 @@ export default class RollupHost {
 
         const outputBundle = await build.generate(outputOptions);
         const output = outputBundle.output;
+        
 
         var outputs = [];
 
         for (let key in output) {
             var chunk: rollup.OutputFile | rollup.OutputChunk = output[key];
-
+            
             if ((<rollup.OutputChunk>chunk).code) {
                 var outputChunk = (<rollup.OutputChunk>chunk);
                 var modulesResult = [];
 
                 for (let key in outputChunk.modules) {
                     var module: rollup.RenderedModule = outputChunk.modules[key];
-                    var moduleResult = { OriginalLength: module.originalLength, Length: module.renderedLength, RemovedExports: module.removedExports, Exports: module.renderedExports }
+                    var moduleResult = { OriginalLength: module.originalLength, Length: module.renderedLength, RemovedExports: module.removedExports, Exports: module.renderedExports, Id: key }
                     modulesResult.push(moduleResult);
                 }
 
@@ -72,12 +74,12 @@ export default class RollupHost {
                     code += `\n//# sourceMappingUrl=${outputChunk.map.toUrl()}\n`;
                 }
 
-                var rollupResult = { Code: code, SourceMap: outputChunk.map, FileName: outputChunk.fileName, Exports: outputChunk.exports, Imports: outputChunk.imports, IsEntry: outputChunk.isEntry, Modules: modulesResult }
+                var rollupResult = { Id: key, Code: code, SourceMap: outputChunk.map, FileName: outputChunk.fileName, Exports: outputChunk.exports, Imports: outputChunk.imports, IsEntry: outputChunk.isEntry, Modules: modulesResult }
                 outputs.push(rollupResult);
             }
             else if ((<rollup.OutputFile>chunk).toString) {
                 var file = (<rollup.OutputFile>chunk);
-                var fileResult = { Code: file.toString() }
+                var fileResult = { Id: key, Code: file.toString() }
                 outputs.push(fileResult);
             }
         }
@@ -95,11 +97,11 @@ export default class RollupHost {
         const bundle = await rollup.rollup(inputOptions);
 
         var result = await bundle.generate(outputOptions);
-
+        
         var modulesResult = [];
         for (let key in result.modules) {
             var module: rollup.RenderedModule = result.modules[key];
-            var moduleResult = { OriginalLength: module.originalLength, Length: module.renderedLength, RemovedExports: module.removedExports, Exports: module.renderedExports }
+            var moduleResult = { OriginalLength: module.originalLength, Length: module.renderedLength, RemovedExports: module.removedExports, Exports: module.renderedExports, Id: key }
             modulesResult.push(moduleResult);
         }
 
@@ -114,7 +116,7 @@ export default class RollupHost {
             code += `\n//# sourceMappingUrl=${result.map.toUrl()}\n`;
         }
 
-        var output = { Code: code, SourceMap: result.map, FileName: result.fileName, Exports: result.exports, Imports: result.imports, IsEntry: result.isEntry, Modules: modulesResult, Cache: bundle.cache, Timings: timings }
+        var output = { Id: "", Code: code, SourceMap: result.map, FileName: result.fileName, Exports: result.exports, Imports: result.imports, IsEntry: result.isEntry, Modules: modulesResult, Cache: bundle.cache, Timings: timings }
         return { Cache: bundle.cache, Output: output, Timings: timings }
     }
 }
