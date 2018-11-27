@@ -35,6 +35,7 @@ describe("NetpackRollupHost", () => {
             //  outputOptions.globals = {};
             let sut = new rolluphost_1.default();
             sut.build(inputOptions, outputOptions).then(result => {
+                // outputOptions.file
                 var code = result.Output.Code;
                 var sourceMap = result.Output.SourceMap;
             }).catch((reason) => {
@@ -65,11 +66,54 @@ describe("NetpackRollupHost", () => {
             outputOptions.sourcemap = "inline";
             let sut = new rolluphost_1.default();
             sut.BuildChunks(inputOptions, outputOptions).then(result => {
+                result.Outputs;
                 timings_1.printTimings(result.Timings);
                 // for (let item in result) {
                 //     var codeItem = result[item];
                 //     console.log(codeItem);
                 //  }          
+            }).catch((reason) => {
+                assert_1.fail("error " + reason);
+            });
+        });
+        it("bundles multiple output formats from single set of inputs", () => {
+            // Arrange
+            var files = {};
+            files["/src/main-a"] = fs.readFileSync('testFiles/CodeSplitting/main-a.js', "utf-8");
+            files["/src/main-b"] = fs.readFileSync('testFiles/CodeSplitting/main-b.js', "utf-8");
+            files["/src/used-by-a"] = fs.readFileSync('testFiles/CodeSplitting/used-by-a.js', "utf-8");
+            files["/src/used-by-b"] = fs.readFileSync('testFiles/CodeSplitting/used-by-b.js', "utf-8");
+            files["/src/used-by-both"] = fs.readFileSync('testFiles/CodeSplitting/used-by-both.js', "utf-8");
+            files["/src/dynamically-imported/apply-color-and-message"] = fs.readFileSync('testFiles/CodeSplitting/dynamically-imported/apply-color-and-message.js', "utf-8");
+            files["/src/dynamically-imported/dom"] = fs.readFileSync('testFiles/CodeSplitting/dynamically-imported/dom.js', "utf-8");
+            var inputOptions = new RollupFileOptions_2.RollupDirOptions();
+            inputOptions.input = ["/src/main-a", "/src/main-b"];
+            inputOptions.perf = true;
+            var hypotheticalPlugin = hypothetical({
+                files: files
+            });
+            hypotheticalPlugin.cwd = false;
+            inputOptions.plugins = [hypotheticalPlugin];
+            var outputOptions = new RollupOutputOptions_2.RollupOutputOptionsDir();
+            outputOptions.format = "esm";
+            outputOptions.sourcemap = "inline";
+            outputOptions.dir = "/esm/";
+            let sut = new rolluphost_1.default();
+            sut.BuildChunks(inputOptions, outputOptions).then(result => {
+                timings_1.printTimings(result.Timings);
+                // for (let item in result) {
+                //     var codeItem = result[item];
+                //     console.log(codeItem);
+                //  }     
+                var secondOutputOptions = new RollupOutputOptions_2.RollupOutputOptionsDir();
+                secondOutputOptions.format = "amd";
+                secondOutputOptions.sourcemap = "inline";
+                secondOutputOptions.dir = "/amd/";
+                sut.BuildChunks(inputOptions, secondOutputOptions).then(result => {
+                    timings_1.printTimings(result.Timings);
+                }).catch((reason) => {
+                    assert_1.fail("error " + reason);
+                });
             }).catch((reason) => {
                 assert_1.fail("error " + reason);
             });
