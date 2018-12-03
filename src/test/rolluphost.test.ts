@@ -8,6 +8,7 @@ import * as fs from "fs";
 import { fail } from "assert";
 import { rollup, OutputChunk } from "rollup";
 import { printTimings } from './timings';
+import * as amd from 'rollup-plugin-amd';
 
 describe("NetpackRollupHost", () => {
 
@@ -41,6 +42,53 @@ describe("NetpackRollupHost", () => {
 
             var outputOptions = new RollupOutputOptions();
             outputOptions.format = "esm";
+            outputOptions.sourcemap = true;
+            // outputOptions.paths = {};
+            //  outputOptions.globals = {};
+
+            let sut = new rollupHost();
+            sut.build(inputOptions, outputOptions).then(result => {
+               // outputOptions.file
+              
+                var code = result.Output.Code;
+                var sourceMap = result.Output.SourceMap;
+
+            }).catch((reason) => {
+                fail("error " + reason)
+            });
+        });
+
+        it("bundles multiple AMD modules to  memory files to single file", () => {
+
+            // Arrange
+            var classAFileContents = fs.readFileSync('testFiles/AMD/ModuleA.js', "utf-8");
+            var classBFileContents = fs.readFileSync('testFiles/AMD/used-by-a.js', "utf-8");
+            var classBFileContents = fs.readFileSync('testFiles/AMD/dynamically-imported/apply-color-and-message.js', "utf-8");
+            var classBFileContents = fs.readFileSync('testFiles/AMD/dynamically-imported/dom.js', "utf-8");          
+           
+
+            var files = {
+
+            };
+            files["/Amd/ModuleA"] = classAFileContents;
+            files["/Amd/used-by-a"] = classBFileContents;
+            files["/Amd/dynamically-imported/apply-color-and-message"] = classBFileContents;
+            files["/AMD/dynamically-imported/dom"] = classBFileContents;
+
+            var inputOptions = new RollupInputOptions();
+            inputOptions.input = "/Amd/ModuleA";
+
+            var hypotheticalPlugin = hypothetical({
+                files: files
+            });
+
+            hypotheticalPlugin.cwd = false;
+            var foo = amd;
+
+            inputOptions.plugins = [hypotheticalPlugin,  amd()];
+
+            var outputOptions = new RollupOutputOptions();
+            outputOptions.format = "system";
             outputOptions.sourcemap = true;
             // outputOptions.paths = {};
             //  outputOptions.globals = {};

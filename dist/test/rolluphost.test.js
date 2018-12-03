@@ -9,6 +9,7 @@ const hypothetical = require("rollup-plugin-hypothetical");
 const fs = require("fs");
 const assert_1 = require("assert");
 const timings_1 = require("./timings");
+const amd = require("rollup-plugin-amd");
 describe("NetpackRollupHost", () => {
     describe("Bundling", () => {
         it("bundles multiple in memory files to single file", () => {
@@ -30,6 +31,39 @@ describe("NetpackRollupHost", () => {
             inputOptions.plugins = [hypotheticalPlugin];
             var outputOptions = new RollupOutputOptions_1.default();
             outputOptions.format = "esm";
+            outputOptions.sourcemap = true;
+            // outputOptions.paths = {};
+            //  outputOptions.globals = {};
+            let sut = new rolluphost_1.default();
+            sut.build(inputOptions, outputOptions).then(result => {
+                // outputOptions.file
+                var code = result.Output.Code;
+                var sourceMap = result.Output.SourceMap;
+            }).catch((reason) => {
+                assert_1.fail("error " + reason);
+            });
+        });
+        it("bundles multiple AMD modules to  memory files to single file", () => {
+            // Arrange
+            var classAFileContents = fs.readFileSync('testFiles/AMD/ModuleA.js', "utf-8");
+            var classBFileContents = fs.readFileSync('testFiles/AMD/used-by-a.js', "utf-8");
+            var classBFileContents = fs.readFileSync('testFiles/AMD/dynamically-imported/apply-color-and-message.js', "utf-8");
+            var classBFileContents = fs.readFileSync('testFiles/AMD/dynamically-imported/dom.js', "utf-8");
+            var files = {};
+            files["/Amd/ModuleA"] = classAFileContents;
+            files["/Amd/used-by-a"] = classBFileContents;
+            files["/Amd/dynamically-imported/apply-color-and-message"] = classBFileContents;
+            files["/AMD/dynamically-imported/dom"] = classBFileContents;
+            var inputOptions = new RollupFileOptions_1.default();
+            inputOptions.input = "/Amd/ModuleA";
+            var hypotheticalPlugin = hypothetical({
+                files: files
+            });
+            hypotheticalPlugin.cwd = false;
+            var foo = amd;
+            inputOptions.plugins = [hypotheticalPlugin, amd()];
+            var outputOptions = new RollupOutputOptions_1.default();
+            outputOptions.format = "system";
             outputOptions.sourcemap = true;
             // outputOptions.paths = {};
             //  outputOptions.globals = {};
