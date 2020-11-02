@@ -16,7 +16,7 @@
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
     "pretty-bytes": "5.1.0",
-    "pretty-ms": "^4.0.0",
+    "pretty-ms": "^7.0.1",
     "rollup-plugin-amd": "^3.0.0",
     "turbocolor": "2.4.1",
     "typescript": "^3.1.1"
