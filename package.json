@@ -8,7 +8,7 @@
     "@types/mocha": "^5.2.5",
     "@types/npm": "^2.0.29",
     "@types/pretty-bytes": "^5.1.0",
-    "rollup": "^0.66.2",
+    "rollup": "^2.33.1",
     "rollup-plugin-hypothetical": "^2.1.0",
     "rollup-plugin-amd": "^3.0.0"
   },
