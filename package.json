@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^5.2.0",
+    "mocha": "^8.2.1",
     "pretty-bytes": "5.1.0",
     "pretty-ms": "^4.0.0",
     "rollup-plugin-amd": "^3.0.0",
